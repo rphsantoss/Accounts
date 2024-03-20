@@ -20,9 +20,11 @@ function operation() {
         
         if(action === 'Criar conta') {
             createAccount()
+
         } else if (action === 'Consultar saldo') {
 
         } else if (action === 'Depositar') {
+            deposit()
 
         } else if (action === 'Sacar') {
 
@@ -74,4 +76,80 @@ function buildAccount() {
         operation()
 
     }).catch((err) => console.log(err))
+}
+
+// add an amount to user account
+function deposit() {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: 'Qual o nome da sua conta?'
+        }
+    ]).then((answer) => {
+
+        const accountName = answer['accountName']
+
+        //verify if account exists
+        if(!checkAccount(accountName)) {
+            return deposit()
+        }
+        
+        inquirer.prompt([
+            {
+                name: 'amount',
+                message: 'Quanto você deseja depositar?'
+            },
+        ]).then((answer) => {
+
+            const amount = answer['amount']
+
+            //add amount
+            addAmount(accountName, account)
+            operation()
+
+        }).catch(err => console.log(err))
+
+    }).catch(err => console.log(err))
+}
+
+function checkAccount(accountName) {
+
+    if(!fs.existsSync(`accounts/${accountName}.json`)) {
+        console.log(chalk.bgRed.black('Esta conta não existe, escolha outra ou crie uma'))
+        return false
+    } 
+    return true
+}
+
+function addAmount(accountName, account) {
+
+    const account = getAccount(accountName)
+
+    if(!amount) {
+        console.log(chalk.bgRed.black('Ocorreu um erro, tente novamente mais tarde!'))
+        return deposit()
+    }
+
+    accountData.balance = parseFloat(amount) + parseFloat(accountData.balance)
+
+    fs.writeFileSync(
+        `accounts/${accountName}.json`,
+        JSON.stringify(accountData),
+        function (err) {
+            console.log(err)
+        }
+    )
+
+    console.log(chalk.green(`Foi depositado o valor de R$${amount} na sua conta`))
+    operation()
+}
+
+function getAccount(accountName) {
+    const accountJSON = fs.readFileSync(`accounts/${accountName}.json`,
+    {
+        encoding: 'utf8',
+        flag: 'r',
+    })
+
+    return JSON.parse(accountJSON)
 }
