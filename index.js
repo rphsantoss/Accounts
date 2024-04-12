@@ -68,7 +68,7 @@ function buildAccount() {
             return
         }
 
-        fs.writeFileSync(`accounts/${accountName}.json`, '{balance": 0}', function(err){
+        fs.writeFileSync(`accounts/${accountName}.json`, '{"balance": 0}', function(err){
             console.log(err)
         })
 
@@ -104,9 +104,8 @@ function deposit() {
             const amount = answer['amount']
 
             //add amount
-            addAmount(accountName, account)
-            operation()
-
+            addAmount(accountName, amount)
+            
         }).catch(err => console.log(err))
 
     }).catch(err => console.log(err))
@@ -121,16 +120,16 @@ function checkAccount(accountName) {
     return true
 }
 
-function addAmount(accountName, account) {
+function addAmount(accountName, amount) {
 
-    const account = getAccount(accountName)
+    const accountData = getAccount(accountName)
 
     if(!amount) {
         console.log(chalk.bgRed.black('Ocorreu um erro, tente novamente mais tarde!'))
         return deposit()
     }
 
-    accountData.balance = parseFloat(amount) + parseFloat(accountData.balance)
+    accountData.balance = parseFloat(amount) + parseFloat(accountData.balance) // -> adiciona quantia
 
     fs.writeFileSync(
         `accounts/${accountName}.json`,
@@ -147,8 +146,8 @@ function addAmount(accountName, account) {
 function getAccount(accountName) {
     const accountJSON = fs.readFileSync(`accounts/${accountName}.json`,
     {
-        encoding: 'utf8',
-        flag: 'r',
+        encoding: 'utf8', //preve acentos
+        flag: 'r', //read
     })
 
     return JSON.parse(accountJSON)
